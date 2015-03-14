@@ -46,9 +46,10 @@ str(df)
 
 ```r
 #group by date, calculate totals, set column names and check 
-result <- aggregate(steps ~ date , data=df, FUN=sum)
-colnames(result) <- c("date", "total_steps")
-str(result)
+result_hist <- aggregate(steps ~ date , data=df, FUN=sum)
+colnames(result_hist) <- c("date", "total_steps")
+result_hist$total_steps <- as.integer(result_hist$total_steps)
+str(result_hist)
 ```
 
 ```
@@ -61,50 +62,47 @@ str(result)
 
 ```r
 # report the mean and median total number of steps taken per day
-mean_steps <- mean(result$total_steps)
-mean_steps
+mean_steps <- as.integer(mean(result_hist$total_steps))
+median_steps <- as.integer(median(result_hist$total_steps))
+mm <- data.frame(mean=mean_steps, median=median_steps, process="without NA")
+mm
 ```
 
 ```
-## [1] 10766.19
-```
-
-```r
-median_steps <- median(result$total_steps)
-median_steps
-```
-
-```
-## [1] 10765
+##    mean median    process
+## 1 10766  10765 without NA
 ```
 
 #### histogram
-* shows the bins of 1500 steps representing the total ranges, with the frequency for the ranges of totals
+* shows the bins of 1500 steps representing the total ranges, with the frequency/count for the ranges of totals
 
 ```r
-m <- ggplot(result, aes(x=total_steps))
-m + geom_histogram(binwidth=1500, aes(fill = ..count..)) +
+m <- ggplot(result_hist, aes(x=total_steps))
+m + geom_histogram(binwidth=1500, aes(fill = ..count..), colour = "darkgreen") +
         geom_vline(aes(xintercept=mean_steps)) +     
         scale_fill_gradient("count", low = "green", high = "red") +
-        labs(x = "total steps per day") + labs(y = "count") + labs(title = "2 months of data ( excluding NA values )")
+        ylim(0,20) +
+        labs(x = "total steps per day") + 
+        labs(y = "count") + 
+        labs(title = "2 months of data ( excluding NA values )")
 ```
 
 ![plot of chunk histogram1](figure/histogram1-1.png) 
 
 ### What is the average daily activity pattern?
-* Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 ```r
 #group by interval, calculate average steps and check
 result <- aggregate(steps ~ interval , data=df, FUN=mean)
 colnames(result) <- c("interval", "mean_steps")
+result$mean_steps <- as.integer(result$mean_steps)
 str(result)
 ```
 
 ```
 ## 'data.frame':	288 obs. of  2 variables:
 ##  $ interval  : int  0 5 10 15 20 25 30 35 40 45 ...
-##  $ mean_steps: num  1.717 0.3396 0.1321 0.1509 0.0755 ...
+##  $ mean_steps: int  1 0 0 0 0 2 0 0 0 1 ...
 ```
 
 ```r
@@ -121,11 +119,12 @@ result[result$mean_steps == max(result$mean_steps),]
 
 ```
 ##     interval mean_steps seq_interval
-## 104      835   206.1698          104
+## 104      835        206          104
 ```
 
 #### plot
-* time series of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+* shows time series of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+* demonstrates how the monitored activity is distributed during the 24h period
 
 ```r
 with(result, {
@@ -137,21 +136,16 @@ with(result, {
         mtext("average steps",side=2,line=4)
         mtext("5-min intervals",side=1,line=3)
         
-        text(200, 180, "interval 8:35 contains max steps: 206.17", col="red")
+        text(200, 180, "interval 8:35 contains max steps: 206", col="red")
 })
 ```
 
 ![plot of chunk plot1](figure/plot1-1.png) 
 
 ### Imputing missing values
-* The presence of missing days may introduce bias into some calculations or summaries of the data.
-* Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
-*
-* Do mean and median differ from the estimates from the first part of the assignment? 
-* What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 ```r
-# create subset containing missing values
+# create subset containing missing values to report total number of missing values ( number of observations )
 missing_values <- subset(fulldf, is.na(steps))
 str(missing_values)
 ```
@@ -187,11 +181,11 @@ result[result$interval == 0,]
 
 ```
 ##   interval mean_steps seq_interval
-## 1        0   1.716981            1
+## 1        0          1            1
 ```
-* I have decided to replace missing values in steps with the mean for that 5-minute interval: logic will loop through interval and set steps == NA to the mean for that 5-minute interval
 
 ```r
+# we could replace missing values in steps with the mean for that 5-minute interval: logic will loop through interval and set steps == NA to the mean for that 5-minute interval to see what effect this will make on the data distribution
 for (i in result$interval ) {
         index <- is.na(fulldf$steps) & fulldf$interval == i
         fulldf$steps[index] <- result[result$interval == i,2]        
@@ -211,57 +205,100 @@ fulldf[fulldf$interval == 0 & (fulldf$date == "2012-10-01" | fulldf$date == "201
 ```
 
 ```
-##          steps       date interval
-## 1     1.716981 2012-10-01        0
-## 17281 1.716981 2012-11-30        0
+##       steps       date interval
+## 1         1 2012-10-01        0
+## 17281     1 2012-11-30        0
 ```
 
 ```r
 # group the enhanced data set by date, calculate total steps, set column names and check
 enhanced_result <- aggregate(steps ~ date , data=fulldf, FUN=sum)
 colnames(enhanced_result) <- c("date", "total_steps")
+enhanced_result$total_steps <- as.integer(enhanced_result$total_steps)
 str(enhanced_result)
 ```
 
 ```
 ## 'data.frame':	61 obs. of  2 variables:
 ##  $ date       : chr  "2012-10-01" "2012-10-02" "2012-10-03" "2012-10-04" ...
-##  $ total_steps: num  10766 126 11352 12116 13294 ...
+##  $ total_steps: int  10641 126 11352 12116 13294 15420 11015 10641 12811 9900 ...
 ```
+
 
 ```r
-# report the mean and median total number of steps taken per day
-mean_steps <- mean(enhanced_result$total_steps)
-mean_steps
+# report mean and median and show how they differ from the estimates in the the first part of the assignment
+mean_steps <- as.integer(mean(enhanced_result$total_steps))
+median_steps <- as.integer(median(enhanced_result$total_steps))
+mm <- rbind(mm, data.frame(mean=mean_steps, median=median_steps, process="replaced NA"))
+mm
 ```
 
 ```
-## [1] 10766.19
+##    mean median     process
+## 1 10766  10765  without NA
+## 2 10749  10641 replaced NA
 ```
-
-```r
-median_steps <- median(enhanced_result$total_steps)
-median_steps
-```
-
-```
-## [1] 10766.19
-```
-
 #### histogram
-* representing
+* shows increse in the frequency/count for one range of totals: 10,500 - 12,000
+* demonstates that the initial data with missing values introduced bias into the calculations of totals
+
 
 ```r
 m <- ggplot(enhanced_result, aes(x=total_steps))
-m + geom_histogram(binwidth=1500, aes(fill = ..count..)) +
+m + geom_histogram(binwidth=1500, aes(fill = ..count..), colour = "darkgreen") +
         geom_vline(aes(xintercept=mean_steps)) +   
         scale_fill_gradient("count", low = "green", high = "red") +
+        ylim(0,20) +
         labs(x = "total steps per day") + 
         labs(y = "count") + 
         labs(title = "2 months of data ( NA replaced by mean interval )")
 ```
 
 ![plot of chunk another_histogram](figure/another_histogram-1.png) 
+
+
+```r
+# combine two data frames into one to plot 2 histograms on the same plot and set new factor variable 
+result_hist$process <- as.factor(c("without NA")) 
+enhanced_result$process <- as.factor(c("replaced NA"))
+
+# check the new data set
+twohist <- as.data.frame(rbind(result_hist, enhanced_result))
+colnames(twohist) <- c("date", "total_steps", "process")
+head(twohist,3)
+```
+
+```
+##         date total_steps    process
+## 1 2012-10-02         126 without NA
+## 2 2012-10-03       11352 without NA
+## 3 2012-10-04       12116 without NA
+```
+
+```r
+tail(twohist,3)
+```
+
+```
+##           date total_steps     process
+## 112 2012-11-28       10183 replaced NA
+## 113 2012-11-29        7047 replaced NA
+## 114 2012-11-30       10641 replaced NA
+```
+
+#### two overlapping histograms to show the bias
+
+```r
+m <- ggplot(twohist, aes(x=total_steps, fill=process)) 
+m + geom_histogram(binwidth=1500, alpha = 0.5, position = "identity", colour = "darkgreen") +
+        geom_vline(aes(xintercept=mean_steps)) +   
+        ylim(0,20) +
+        annotate("text", label = "<--- overlap", x = 18000, y = 10, size = 8, colour = "red", angle=45) +
+        labs(x = "total steps per day") + 
+        labs(y = "count")
+```
+
+![plot of chunk another](figure/another-1.png) 
 
 ### Are there differences in activity patterns between weekdays and weekends?
 
@@ -289,12 +326,12 @@ head(result)
 
 ```
 ##   day_type interval mean_steps seq_interval
-## 1  weekday        0       2.25            1
-## 2  weekend        0       0.21            1
-## 3  weekday        5       0.45            2
-## 4  weekend        5       0.04            2
-## 5  weekday       10       0.17            3
-## 6  weekend       10       0.02            3
+## 1  weekday        0       2.16            1
+## 2  weekend        0       0.12            1
+## 3  weekday        5       0.40            2
+## 4  weekend        5       0.00            2
+## 5  weekday       10       0.16            3
+## 6  weekend       10       0.00            3
 ```
 
 ```r
@@ -304,7 +341,8 @@ wend <- subset(result, day_type == "weekend")
 ```
 
 #### panel plot
-* time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+* shows time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)
+* shows how the activity over the weekend is distributed more evenly during the day
 
 ```r
 p <- ggplot(result, aes(x=seq_interval, y=mean_steps))
@@ -313,11 +351,14 @@ p + facet_wrap(~ day_type, nrow = 2, ncol = 1) +
         geom_line(data = wend, colour = "blue") +
 
         theme(panel.background = element_rect(fill = 'gray'), 
-              plot.margin=unit(c(4,4,6,4),"mm"),
+              plot.margin = unit(c(4,4,6,4),"mm"),
               strip.text.x = element_text(size=12, face="bold")) +     
 
-        labs(x = "5-min intervals") + labs(y = "average steps") + labs(title = "Average steps per interval") +       
-        scale_x_continuous(breaks=c(36,96,156,216,276), labels = c("3:00","8:00","13:00","18:00","23:00"))
+        labs(x = "5-min intervals") + 
+        labs(y = "average steps") + 
+        labs(title = "Average steps per interval") +       
+        scale_x_continuous(breaks = c(36,96,156,216,276), 
+                           labels = c("3:00","8:00","13:00","18:00","23:00"))
 ```
 
 ![plot of chunk another_plot](figure/another_plot-1.png) 

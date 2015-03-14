@@ -320,8 +320,12 @@ result[result$mean_steps == max(result$mean_steps),]
 
 <pre><code class="r">with(result, {
         par(mar=c(5,5,4,2))
-        plot(seq_interval, mean_steps, xlab = &quot;&quot;, ylab = &quot;&quot;, type = &quot;l&quot;, axes=FALSE, main=&quot;Average steps per interval&quot;)
-        axis(side=1, at = c(36,96,156,216,276), labels = c(&quot;3:00&quot;,&quot;8:00&quot;,&quot;13:00&quot;,&quot;18:00&quot;,&quot;23:00&quot;))
+        plot(seq_interval, mean_steps, xlab = &quot;&quot;, ylab = &quot;&quot;, type = &quot;l&quot;, 
+             axes=FALSE, main=&quot;Average steps per interval&quot;)
+
+        axis(side=1, at = c(36,96,156,216,276), 
+             labels = c(&quot;3:00&quot;,&quot;8:00&quot;,&quot;13:00&quot;,&quot;18:00&quot;,&quot;23:00&quot;))
+
         axis(side=2, at = c(0,50,100,150,200), las=2)
         box()
         mtext(&quot;average steps&quot;,side=2,line=4)
@@ -467,10 +471,14 @@ head(twohist,3)
 <h4>two overlapping histograms to show the bias</h4>
 
 <pre><code class="r">m &lt;- ggplot(twohist, aes(x=total_steps, fill=process)) 
-m + geom_histogram(binwidth=1500, alpha = 0.5, position = &quot;identity&quot;, colour = &quot;darkgreen&quot;) +
+m + geom_histogram(binwidth=1500, alpha = 0.5, 
+                   position = &quot;identity&quot;, colour = &quot;darkgreen&quot;) +
+
         geom_vline(aes(xintercept=mean_steps)) +   
         ylim(0,20) +
-        annotate(&quot;text&quot;, label = &quot;&lt;--- overlap&quot;, x = 18000, y = 10, size = 8, colour = &quot;red&quot;, angle=45) +
+
+        annotate(&quot;text&quot;, label = &quot;&lt;--- overlap&quot;, x = 18000, y = 10, 
+                 size = 8, colour = &quot;red&quot;, angle=45) +
         labs(x = &quot;total steps per day&quot;) + 
         labs(y = &quot;count&quot;)
 </code></pre>

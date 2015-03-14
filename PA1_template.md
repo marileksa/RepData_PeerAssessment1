@@ -131,8 +131,12 @@ result[result$mean_steps == max(result$mean_steps),]
 ```r
 with(result, {
         par(mar=c(5,5,4,2))
-        plot(seq_interval, mean_steps, xlab = "", ylab = "", type = "l", axes=FALSE, main="Average steps per interval")
-        axis(side=1, at = c(36,96,156,216,276), labels = c("3:00","8:00","13:00","18:00","23:00"))
+        plot(seq_interval, mean_steps, xlab = "", ylab = "", type = "l", 
+             axes=FALSE, main="Average steps per interval")
+        
+        axis(side=1, at = c(36,96,156,216,276), 
+             labels = c("3:00","8:00","13:00","18:00","23:00"))
+        
         axis(side=2, at = c(0,50,100,150,200), las=2)
         box()
         mtext("average steps",side=2,line=4)
@@ -297,10 +301,14 @@ tail(twohist,3)
 
 ```r
 m <- ggplot(twohist, aes(x=total_steps, fill=process)) 
-m + geom_histogram(binwidth=1500, alpha = 0.5, position = "identity", colour = "darkgreen") +
+m + geom_histogram(binwidth=1500, alpha = 0.5, 
+                   position = "identity", colour = "darkgreen") +
+        
         geom_vline(aes(xintercept=mean_steps)) +   
         ylim(0,20) +
-        annotate("text", label = "<--- overlap", x = 18000, y = 10, size = 8, colour = "red", angle=45) +
+        
+        annotate("text", label = "<--- overlap", x = 18000, y = 10, 
+                 size = 8, colour = "red", angle=45) +
         labs(x = "total steps per day") + 
         labs(y = "count")
 ```

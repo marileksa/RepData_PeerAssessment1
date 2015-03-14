@@ -32,7 +32,8 @@ str(fulldf)
 
 ```r
 # remove 'steps == NA' from the set and check
-# note: if you do 'aggregate(...., na.rm=TRUE)' same result will be achieved: 53 observations to plot
+# note: if you do 'aggregate(...., na.rm=TRUE)' same result will be achieved: 
+# 53 observations to plot
 df <- subset(fulldf, !is.na(steps))
 str(df)
 ```
@@ -48,7 +49,6 @@ str(df)
 #group by date, calculate totals, set column names and check 
 result_hist <- aggregate(steps ~ date , data=df, FUN=sum)
 colnames(result_hist) <- c("date", "total_steps")
-result_hist$total_steps <- as.integer(result_hist$total_steps)
 str(result_hist)
 ```
 
@@ -95,14 +95,13 @@ m + geom_histogram(binwidth=1500, aes(fill = ..count..), colour = "darkgreen") +
 #group by interval, calculate average steps and check
 result <- aggregate(steps ~ interval , data=df, FUN=mean)
 colnames(result) <- c("interval", "mean_steps")
-result$mean_steps <- as.integer(result$mean_steps)
 str(result)
 ```
 
 ```
 ## 'data.frame':	288 obs. of  2 variables:
 ##  $ interval  : int  0 5 10 15 20 25 30 35 40 45 ...
-##  $ mean_steps: int  1 0 0 0 0 2 0 0 0 1 ...
+##  $ mean_steps: num  1.717 0.3396 0.1321 0.1509 0.0755 ...
 ```
 
 ```r
@@ -121,7 +120,7 @@ result[result$mean_steps == max(result$mean_steps),]
 
 ```
 ##     interval mean_steps seq_interval
-## 104      835        206          104
+## 104      835   206.1698          104
 ```
 
 #### plot
@@ -188,7 +187,7 @@ result[result$interval == 0,]
 
 ```
 ##   interval mean_steps seq_interval
-## 1        0          1            1
+## 1        0   1.716981            1
 ```
 
 ```r
@@ -214,23 +213,22 @@ fulldf[fulldf$interval == 0 & (fulldf$date == "2012-10-01" | fulldf$date == "201
 ```
 
 ```
-##       steps       date interval
-## 1         1 2012-10-01        0
-## 17281     1 2012-11-30        0
+##          steps       date interval
+## 1     1.716981 2012-10-01        0
+## 17281 1.716981 2012-11-30        0
 ```
 
 ```r
 # group the enhanced data set by date, calculate total steps, set column names and check
 enhanced_result <- aggregate(steps ~ date , data=fulldf, FUN=sum)
 colnames(enhanced_result) <- c("date", "total_steps")
-enhanced_result$total_steps <- as.integer(enhanced_result$total_steps)
 str(enhanced_result)
 ```
 
 ```
 ## 'data.frame':	61 obs. of  2 variables:
 ##  $ date       : chr  "2012-10-01" "2012-10-02" "2012-10-03" "2012-10-04" ...
-##  $ total_steps: int  10641 126 11352 12116 13294 15420 11015 10641 12811 9900 ...
+##  $ total_steps: num  10766 126 11352 12116 13294 ...
 ```
 
 
@@ -246,10 +244,10 @@ mm
 ```
 ##    mean median     process
 ## 1 10766  10765  without NA
-## 2 10749  10641 replaced NA
+## 2 10766  10766 replaced NA
 ```
 #### histogram
-* shows increse in the frequency/count for one range of totals: 10,500 - 12,000
+* shows a major increse in the frequency/count for range of totals: 10,500 - 12,000
 * demonstates that the initial data with missing values introduced bias into the calculations of totals
 
 
@@ -292,9 +290,9 @@ tail(twohist,3)
 
 ```
 ##           date total_steps     process
-## 112 2012-11-28       10183 replaced NA
-## 113 2012-11-29        7047 replaced NA
-## 114 2012-11-30       10641 replaced NA
+## 112 2012-11-28    10183.00 replaced NA
+## 113 2012-11-29     7047.00 replaced NA
+## 114 2012-11-30    10766.19 replaced NA
 ```
 
 #### two overlapping histograms to show the bias
@@ -332,7 +330,6 @@ fulldf$day_type <- as.factor(fulldf$day_type)
 # group by daty_type and interval, calculate the average
 result <- aggregate(steps ~ day_type * interval, data=fulldf, FUN=mean)
 colnames(result) <- c("day_type", "interval", "mean_steps")
-result$mean_steps <- round(result$mean_steps, digits=2)
 
 #since the interval is sorted we could create a repeating sequence and set seq_interval
 result$seq_interval <- rep(seq(1:288), each=2)      
@@ -341,12 +338,12 @@ head(result)
 
 ```
 ##   day_type interval mean_steps seq_interval
-## 1  weekday        0       2.16            1
-## 2  weekend        0       0.12            1
-## 3  weekday        5       0.40            2
-## 4  weekend        5       0.00            2
-## 5  weekday       10       0.16            3
-## 6  weekend       10       0.00            3
+## 1  weekday        0 2.25115304            1
+## 2  weekend        0 0.21462264            1
+## 3  weekday        5 0.44528302            2
+## 4  weekend        5 0.04245283            2
+## 5  weekday       10 0.17316562            3
+## 6  weekend       10 0.01650943            3
 ```
 
 ```r

@@ -22,14 +22,14 @@ fulldf <- read.csv("activity.csv", stringsAsFactors = FALSE)
 str(fulldf)
 
 # remove 'steps == NA' from the set and check
-# note: if you do 'aggregate(...., na.rm=TRUE)' same result will be achieved: 53 observations to plot
+# note: if you do 'aggregate(...., na.rm=TRUE)' same result will be achieved: 
+# 53 observations to plot
 df <- subset(fulldf, !is.na(steps))
 str(df)
 
 #group by date, calculate totals, set column names and check 
 result_hist <- aggregate(steps ~ date , data=df, FUN=sum)
 colnames(result_hist) <- c("date", "total_steps")
-result_hist$total_steps <- as.integer(result_hist$total_steps)
 str(result_hist)
 ```
 
@@ -60,7 +60,6 @@ m + geom_histogram(binwidth=1500, aes(fill = ..count..), colour = "darkgreen") +
 #group by interval, calculate average steps and check
 result <- aggregate(steps ~ interval , data=df, FUN=mean)
 colnames(result) <- c("interval", "mean_steps")
-result$mean_steps <- as.integer(result$mean_steps)
 str(result)
 
 #add new variable and set it to sequence of consecutive integers to plot correctly 
@@ -103,7 +102,7 @@ with(result, {
 # ( number of observations )
 missing_values <- subset(fulldf, is.na(steps))
 str(missing_values)
-
+               
 # display records with missing values for interval == 0
 fulldf[fulldf$interval == 0 & is.na(fulldf$steps),]
 
@@ -127,7 +126,6 @@ fulldf[fulldf$interval == 0 & (fulldf$date == "2012-10-01" | fulldf$date == "201
 # group the enhanced data set by date, calculate total steps, set column names and check
 enhanced_result <- aggregate(steps ~ date , data=fulldf, FUN=sum)
 colnames(enhanced_result) <- c("date", "total_steps")
-enhanced_result$total_steps <- as.integer(enhanced_result$total_steps)
 str(enhanced_result)
 ```
 
@@ -140,7 +138,7 @@ mm <- rbind(mm, data.frame(mean=mean_steps, median=median_steps, process="replac
 mm
 ```
 #### histogram
-* shows increse in the frequency/count for one range of totals: 10,500 - 12,000
+* shows a major increse in the frequency/count for range of totals: 10,500 - 12,000
 * demonstates that the initial data with missing values introduced bias into the calculations of totals
 
 ``` {r another_histogram, hight=1}
@@ -198,7 +196,6 @@ fulldf$day_type <- as.factor(fulldf$day_type)
 # group by daty_type and interval, calculate the average
 result <- aggregate(steps ~ day_type * interval, data=fulldf, FUN=mean)
 colnames(result) <- c("day_type", "interval", "mean_steps")
-result$mean_steps <- round(result$mean_steps, digits=2)
 
 #since the interval is sorted we could create a repeating sequence and set seq_interval
 result$seq_interval <- rep(seq(1:288), each=2)      

@@ -106,12 +106,14 @@ str(result)
 ```
 
 ```r
-#add new variable and set it to sequence of consecutive integers to plot correctly knowing that interval is sorted
+#add new variable and set it to sequence of consecutive integers to plot correctly 
+# knowing that interval is sorted
 result$seq_interval <- 1:288
 colnames(result) <- c("interval", "mean_steps", "seq_interval")
 
 #scale claculation for x-axis: 288 intervals / 24 hours = 12 intervals in one hour
-# if we want to plot "3:00","8:00","13:00","18:00","23:00" then the corresponding ints will be 36,96,156,216,276 respectively
+# if we want to plot "3:00","8:00","13:00","18:00","23:00" 
+# then the corresponding ints will be 36,96,156,216,276 respectively
 
 #finding 5-minute interval that contains the maximum number of steps
 result[result$mean_steps == max(result$mean_steps),]
@@ -145,7 +147,8 @@ with(result, {
 ### Imputing missing values
 
 ```r
-# create subset containing missing values to report total number of missing values ( number of observations )
+# create subset containing missing values to report total number of missing values 
+# ( number of observations )
 missing_values <- subset(fulldf, is.na(steps))
 str(missing_values)
 ```
@@ -185,7 +188,9 @@ result[result$interval == 0,]
 ```
 
 ```r
-# we could replace missing values in steps with the mean for that 5-minute interval: logic will loop through interval and set steps == NA to the mean for that 5-minute interval to see what effect this will make on the data distribution
+# we could replace missing values in steps with the mean for that 5-minute interval: 
+# logic will loop through interval and set steps == NA to the mean for that 5-minute interval 
+# to see what effect this will make on the data distribution
 for (i in result$interval ) {
         index <- is.na(fulldf$steps) & fulldf$interval == i
         fulldf$steps[index] <- result[result$interval == i,2]        
@@ -226,7 +231,8 @@ str(enhanced_result)
 
 
 ```r
-# report mean and median and show how they differ from the estimates in the the first part of the assignment
+# report mean and median and show how they differ from the estimates 
+# in the the first part of the assignment
 mean_steps <- as.integer(mean(enhanced_result$total_steps))
 median_steps <- as.integer(median(enhanced_result$total_steps))
 mm <- rbind(mm, data.frame(mean=mean_steps, median=median_steps, process="replaced NA"))
@@ -258,7 +264,8 @@ m + geom_histogram(binwidth=1500, aes(fill = ..count..), colour = "darkgreen") +
 
 
 ```r
-# combine two data frames into one to plot 2 histograms on the same plot and set new factor variable 
+# combine two data frames into one to plot 2 histograms on the same plot 
+# and set new factor variable 
 result_hist$process <- as.factor(c("without NA")) 
 enhanced_result$process <- as.factor(c("replaced NA"))
 
@@ -319,7 +326,7 @@ result <- aggregate(steps ~ day_type * interval, data=fulldf, FUN=mean)
 colnames(result) <- c("day_type", "interval", "mean_steps")
 result$mean_steps <- round(result$mean_steps, digits=2)
 
-#since the interval is sorted we could create a repeating sequence and set $seq_interval
+#since the interval is sorted we could create a repeating sequence and set seq_interval
 result$seq_interval <- rep(seq(1:288), each=2)      
 head(result)
 ```
